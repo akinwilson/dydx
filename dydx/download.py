@@ -83,6 +83,7 @@ pprint(records_encd[:2])
 files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd}
 
 p = Path(__file__).parent / 'data'
+p.mkdir(parents=True, exist_ok=True)
 print(p)
 
 for (f,obj) in files.items():

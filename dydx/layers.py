@@ -7,7 +7,7 @@ from random import randint, uniform
 # print(factorial(5))
 
 
-# taylor series of natural logaritm 
+# # taylor series of natural logaritm 
 TERMS = 10 
 def ln(x):
 	res= []
@@ -15,16 +15,16 @@ def ln(x):
 		res.append( (1/i ) * ((x- 1)/x)**i)
 	return sum(res)
 
-# taylor series of exponential 
+# # taylor series of exponential 
 	
-def exp(x):
-	res= []
-	for i in range(1,TERMS,1):
-		res.append( (1/factorial(i) ) * (x**i))
-	return sum(res)
+# def exp(x):
+# 	res= []
+# 	for i in range(1,TERMS,1):
+# 		res.append( (1/factorial(i) ) * (x**i))
+# 	return sum(res)
 
-def sigmoid(x):
-	return 1 / (1 + exp(-x)) 
+# def sigmoid(x):
+# 	return 1 / (1 + exp(-x)) 
 			
 	
 def flatten(v):
