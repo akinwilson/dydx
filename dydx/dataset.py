@@ -9,89 +9,181 @@ file= 'encoded_records.list'
 
 p = Path(__file__).parent / 'data'
 
-with open( p / file, 'rb') as fh:
-	data=  pickle.load(fh) 
+fp = p / file
+
+
+xcols =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']
+ycols=  ['Claim']
 
 class Dataset:
 	
-		def __init__(self, path, x_names,y_names,balance=True,shuffle=True):
-			pass
-		
-		def load(self):
-			pass
-			
-		def __getitem__(self,idx):
-			pass
-		
-		def __len__(self):
-			pass
-		
-		def _scale(self):
-			pass
+		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True):
 
-class DataLoader:
-	def batch(self,batch_size):
-		pass
+			self.filepath= filepath 
+			self.x_names = x_names
+			self.y_names = y_names
+			self.to_balance = balance
+			self.shuffle = shuffle
+			self.testing = testing 
+
+			def load(filepath):
+				with open( filepath, 'rb') as fh:
+					return  pickle.load(fh) 
+			
+			self.data = load(filepath)
+			self.records_to_list()
+
+			if self.to_balance:
+				self.balance()
+			else:
+				if self.shuffle: 
+					random.shuffle(self.data)
+			
+
+			self.scale()
+			
+			self.train = self.data[:int(len(self.data)*0.70)]
+			self.val = self.data[int(len(self.data)*0.70): int(len(self.data)*0.90)]
+			self.test = self.data[int(len(self.data)*0.90):]	
+
 		
+		def records_to_list(self):
+			xvals = lambda r: [v for (k,v) in r.items() if k in self.x_names]
+			yvals = lambda r: [v for (k,v) in r.items() if k in self.y_names]
+			self.data = [  (xvals(r), yvals(r)) for r in self.data ]
+
+		def balance(self):
+			'''
+			works for binary targets, finds shortest target group lengths and scales down to smallest group
+			'''
+			
+			print(self.data[:5])
+
+
+			dist = Counter([y[0] for (_,y) in self.data])
+
+			dist = sorted(dist.items(), key=lambda kv: kv[1])
+			max_vals_ys = dist[:1]
+
+			pos =  [  (x, y)  for (x,y) in self.data if y[0] ==1.0 ][:max_vals_ys[0][1]]
+			neg =  [  (x, y) for (x,y) in self.data if y[0] ==0.0  ][:max_vals_ys[0][1]]
+
+			self.data =  pos + neg 
+			random.shuffle(self.data)
+			
+		def __getitem__(self,idx, split=['train','val','test'][1]):
+			return getattr(self,split)[idx]
+		
+		def __len__(self,split=['train','val','test'][1]):
+			return len(getattr(self,split))
+		
+		def scale(self):
+			dt = [] # data tranformation 
+			for i in range(len(self.data[0][0])):
+				# collect ith predictor
+				m= [p[i] for p in [x for (x,_) in self.data]]
+				if min(m) == 0 : # asumming standardisation min max scaling
+					dt.append((min(m),max(m)))
+				else: # assuming normalsation 
+					mu = (1/len(m)) * sum(m)
+					var = (1/(len(m)-1) ) * sum( [(mu - x)**2 for x in m])
+					dt.append((mu, var**(1/2)))
+					
+			def normalise(x, mu, std):
+				return (x-mu)/std
+			def standardise(x, min, max):
+				return (x-min)/(max-min)
+
+			self.data = [  ([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in self.data ]
+			# only use 160 examples for testing the pipeline
+			self.data = self.data[:160] if self.testing else self.data 		
+
+		
+class DataLoader:
+	def __init__(self, dataset, batch_size):
+		self.data = dataset
+		self.batch_size = batch_size
+
+	def __call__(self):
+		l = len(self.data)
+		for ndx in range(0, l, self.batch_size):
+			x,y = [],[]
+			for (_x,_y) in self.data[ndx:min(ndx + self.batch_size, l)]:
+				x.append(_x)
+				y.append(_y)
+			yield Array(values=x),Array(values=y)
+
+ds = Dataset()
+splits = ['train','val','test']
+print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
+dst = ds.train
+dsv = ds.val
+dss = ds.test
+# iterators 
+dltrain  = DataLoader(dst,16)
+dlval = DataLoader(dsv,16)
+dltest = DataLoader(dss,16)
+
+
+
+for (idx,xy) in enumerate(dltrain()):
+	x,y = xy
+	print(f'{idx}')
 # ID,Age,Agency,Agency Type,Commision (in value),Destination,Distribution Channel,Duration,Gender,Net Sales,Product Name,Claim
 
-x =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']
-y=  ['Claim']
-xvals = lambda r: [v for (k,v) in r.items() if k in x]
-yvals = lambda r: [v for (k,v) in r.items() if k in y]
-data = [  (xvals(r), yvals(r)) for r in data ]
+# x =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']
+# y=  ['Claim']
+# xvals = lambda r: [v for (k,v) in r.items() if k in x]
+# yvals = lambda r: [v for (k,v) in r.items() if k in y]
+# data = [  (xvals(r), yvals(r)) for r in data ]
 
 
-dist = Counter((y[0] for (_,y) in data))
-# balancing data
-#print(dist[1],dist[0])
+# dist = Counter((y[0] for (_,y) in data))
+
+# dist = sorted(dist.items(), key=lambda kv: kv[1])
+# max_vals_ys = dist[:1]
+
+# pos =  [  (x, y)  for (x,y) in data if y[0] ==1.0 ][:max_vals_ys[0][1]]
+# neg =  [  (x, y) for (x,y) in data if y[0] ==0.0  ][:max_vals_ys[0][1]]
 
 
-
-dist = sorted(dist.items(), key=lambda kv: kv[1])
-max_vals_ys = dist[:1]
-
-pos =  [  (x, y)  for (x,y) in data if y[0] ==1.0 ][:max_vals_ys[0][1]]
-neg =  [  (x, y) for (x,y) in data if y[0] ==0.0  ][:max_vals_ys[0][1]]
-
-
-data = pos + neg 
-random.shuffle(data)
-#print(len(data))
-# data transformatiom 
-minmax= []
-dt = []
-for i in range(len(data[0][0])):
-	m= [p[i] for p in [x for (x,_) in data]]
-	if min(m) == 0 :
-		dt.append((min(m),max(m)))
-	else:
-		mu = (1/len(m)) * sum(m)
-		var = (1/(len(m)-1) ) * sum( [(mu - x)**2 for x in m])
-		dt.append((mu, var**(1/2)))
+# data = pos + neg 
+# random.shuffle(data)
+# #print(len(data))
+# # data transformatiom 
+# minmax= []
+# dt = []
+# for i in range(len(data[0][0])):
+# 	m= [p[i] for p in [x for (x,_) in data]]
+# 	if min(m) == 0 :
+# 		dt.append((min(m),max(m)))
+# 	else:
+# 		mu = (1/len(m)) * sum(m)
+# 		var = (1/(len(m)-1) ) * sum( [(mu - x)**2 for x in m])
+# 		dt.append((mu, var**(1/2)))
 		
-def normalise(x, mu, std):
-	return (x-mu)/std
-def standardise(x, min, max):
-	return (x-min)/(max-min)
+# def normalise(x, mu, std):
+# 	return (x-mu)/std
+# def standardise(x, min, max):
+# 	return (x-min)/(max-min)
 
-data =[  ([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in data ][:160]
+# data =[  ([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in data ][:160]
 
 
-# train, val, test split 
-train = data[:int(len(data)*0.70)]
-val = data[int(len(data)*0.70): int(len(data)*0.90)]
-test =data[int(len(data)*0.90):]
-print(len(train))
-#print(len(val))
-#print(len(test))
-#print(test)
+# # train, val, test split 
+# train = data[:int(len(data)*0.70)]
+# val = data[int(len(data)*0.70): int(len(data)*0.90)]
+# test =data[int(len(data)*0.90):]
+# print(len(train))
+# #print(len(val))
+# #print(len(test))
+# #print(test)
 
-def batch(data, n=16):
-    l = len(data)
-    for ndx in range(0, l, n):
-        x,y = [],[]
-        for (_x,_y) in data[ndx:min(ndx + n, l)]:
-        	x.append(_x)
-        	y.append(_y)
-        yield Array(values=x),Array(values=y)
+# def batch(data, n=16):
+#     l = len(data)
+#     for ndx in range(0, l, n):
+#         x,y = [],[]
+#         for (_x,_y) in data[ndx:min(ndx + n, l)]:
+#         	x.append(_x)
+#         	y.append(_y)
+#         yield Array(values=x),Array(values=y)
