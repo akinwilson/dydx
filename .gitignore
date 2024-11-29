@@ -1,2 +1,4 @@
 Pipfile
 dydx/data/*
+*Pipfile.lock
+__pycache__/
