@@ -83,25 +83,23 @@ class Scalar:
 
 
 	def backward(self):
-
-	    graph =[]
-	    seen = set()
+		seen = set()
+		graph =[]
+		def build_graph(node):
+			if node not in seen:
+				seen.add(node)
+				for child in node._previous:
+					build_graph(child)
+			graph.append(node)
 	    
-	    def build_graph(node):
-	    	if node not in seen:
-	    		seen.add(node)
-	    		for child in node._previous:
-	    			build_graph(child)
-	    		graph.append(node)
-	    	
-	    build_graph(self)
+		build_graph(self)
 	    	
 	    	# let the final output have partial 
 	    	#derivative w.r.t itself be one 
-	    self.grad = 1
-	    	# evaluate gradients in backwards order
-	    for node in graph[::-1]:
-	    	node._backward()
+		self.grad = 1
+	    	# evaluate gradients in backwards orde
+		for node in graph[::-1]:
+			node._backward()
 	    		
 	    		
 	
@@ -129,22 +127,30 @@ class Scalar:
 		result._backward = _backward
 		return result
 					
-	def _zero_grad(self):
-		self.grad = 0	
+	# def _zero_grad(self):
+	# 	self.grad = 0	
+
 	def __neg__(self):
 		return self * -1
+	
 	def __radd__(self, other):
 		return self + other
-	def __sub__(self, other): # self - othe
+	
+	def __sub__(self, other):
 	    return self + (-1*other)
-	def __rsub__(self, other): # other - self
+	
+	def __rsub__(self, other): 
 	    return other + (-self)
-	def __rmul__(self, other): # other * self
+	
+	def __rmul__(self, other): 
 	    return self * other
-	def __truediv__(self, other): # self / other
+	
+	def __truediv__(self, other): 
 	    return self * other**-1
-	def __rtruediv__(self, other): # other / self
+	
+	def __rtruediv__(self, other):
 	    return other * self**-1
+	
 	def __repr__(self):
 		return f"(data:{self.data}, grad:{self.grad})"	
 
