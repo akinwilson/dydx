@@ -1,10 +1,18 @@
 import pickle
 
-from linear_algebra import Array
+from .linear_algebra import Array
 from pathlib import Path 
-import random
-from dydx import Scalar
+import random, sys
+
+# gather seed information 
+seed = random.randint(1, sys.maxsize)
+rdm = random.seed(seed)
+print(f"dataset seed: {seed}")
+
+
+from .dydx import Scalar
 from collections import Counter, OrderedDict
+
 file= 'encoded_records.list'
 
 p = Path(__file__).parent / 'data'
@@ -18,7 +26,12 @@ ycols=  ['Claim']
 class Dataset:
 	
 		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True):
-
+			'''
+			asuming data is loaded as a list of records; 
+			[ {'uuid': 1, 'col1':data1,'col2':data2, ... ,'coln':datan},
+			  {'uuid': 2, 'col1':data1,'col2':data2, ... ,'coln':datan},
+			   .... ]
+			'''
 			self.filepath= filepath 
 			self.x_names = x_names
 			self.y_names = y_names
@@ -56,10 +69,6 @@ class Dataset:
 			'''
 			works for binary targets, finds shortest target group lengths and scales down to smallest group
 			'''
-			
-			print(self.data[:5])
-
-
 			dist = Counter([y[0] for (_,y) in self.data])
 
 			dist = sorted(dist.items(), key=lambda kv: kv[1])
@@ -113,22 +122,25 @@ class DataLoader:
 				y.append(_y)
 			yield Array(values=x),Array(values=y)
 
-ds = Dataset()
-splits = ['train','val','test']
-print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
-dst = ds.train
-dsv = ds.val
-dss = ds.test
-# iterators 
-dltrain  = DataLoader(dst,16)
-dlval = DataLoader(dsv,16)
-dltest = DataLoader(dss,16)
+
+
+if __name__ == "__main__":	
+	ds = Dataset()
+	splits = ['train','val','test']
+	print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
+	dst = ds.train
+	dsv = ds.val
+	dss = ds.test
+	# iterators 
+	dltrain  = DataLoader(dst,16)
+	dlval = DataLoader(dsv,16)
+	dltest = DataLoader(dss,16)
 
 
 
-for (idx,xy) in enumerate(dltrain()):
-	x,y = xy
-	print(f'{idx}')
+	for (idx,xy) in enumerate(dltrain()):
+		x,y = xy
+		print(f'{idx}')
 # ID,Age,Agency,Agency Type,Commision (in value),Destination,Distribution Channel,Duration,Gender,Net Sales,Product Name,Claim
 
 # x =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']

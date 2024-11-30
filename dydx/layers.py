@@ -1,9 +1,15 @@
-from linear_algebra import Array 
-from dydx import Scalar 
+from .linear_algebra import Array 
+from .dydx import Scalar 
 from typing import List, Tuple
 #from math import e,log2
-from random import randint, uniform
+import random # import randint, uniform, seed 
 
+import sys
+
+# gather seed information 
+seed = random.randint(1, sys.maxsize)
+rdm = random.seed(seed)
+print(f"layer init seed: {seed}")
 # print(factorial(5))
 
 
@@ -14,17 +20,6 @@ def ln(x):
 	for i in range(1,TERMS,1):
 		res.append( (1/i ) * ((x- 1)/x)**i)
 	return sum(res)
-
-# # taylor series of exponential 
-	
-# def exp(x):
-# 	res= []
-# 	for i in range(1,TERMS,1):
-# 		res.append( (1/factorial(i) ) * (x**i))
-# 	return sum(res)
-
-# def sigmoid(x):
-# 	return 1 / (1 + exp(-x)) 
 			
 	
 def flatten(v):
@@ -43,6 +38,60 @@ class Layer:
 
     def parameters(self):
         return []
+
+
+
+class Embedding(Array,Layer):
+	def __init__(self, activation=True, random=False, dims=(32768,32), values=None):
+		
+
+		super().__init__(values=values,random=random, dims=dims)
+		
+		if values is None:
+			self._init_weights()
+		# need to override random
+		else:
+			self.values=values
+		
+		self.activation = activation			
+		
+	def forward(self,one_hot_encoding_idx):
+		# need to stack 1 along the end of x 
+		# to be able to introduce bias
+		# assumimg batch_dim,feature_dim
+		bd = x.dims[0]
+		# print("dism before bias inclusion",x.dims)
+		#self.dims = (self.dims[0] +1, self.dims[1])
+		x_b =  x.stack(Array(values=[[Scalar(1)]] * bd ), dim=0)
+
+		# print("dims after bias inclusion",x_b.dims)
+		#xbdims = self.extract_dims(x_b.values, [])
+		#selfdims = self.extract_dims(self.values, [])
+		#print('x_b.dims from extract', xbdims)
+		#print('self.dims from extract', selfdims)		
+		# print("self dims", self.dims)
+		out = x_b @ self
+#		out = Array(values=out.values)
+		return out
+		
+#####
+	def parameters(self):
+		return [p for row in self.values for p in row] 
+#		return self.values		
+######
+	
+	def _init_weights(self):
+		# xavier init
+		x= (6/sum(self.dims))**(1/2)
+		self.values =  [ [Scalar(random.uniform(-x,x)) for _ in range(self.dims[1] )] for _ in range(self.dims[0] +1)]
+		self.dims = self.extract_dims(self.values, [])
+	
+	 
+	def __call__(self, x):
+		return self.forward(x)
+
+
+
 
 
 class Linear(Array,Layer):
@@ -91,7 +140,7 @@ class Linear(Array,Layer):
 	def _init_weights(self):
 		# xavier init
 		x= (6/sum(self.dims))**(1/2)
-		self.values =  [ [Scalar(uniform(-x,x)) for _ in range(self.dims[1] )] for _ in range(self.dims[0] +1)]
+		self.values =  [ [Scalar(random.uniform(-x,x)) for _ in range(self.dims[1] )] for _ in range(self.dims[0] +1)]
 		self.dims = self.extract_dims(self.values, [])
 
 	def apply(self, item, fun):
@@ -125,9 +174,8 @@ class Loss:
 		'''
 		#y_hat.values = [[sigmoid(v) for v in row] for row in y_hat.values] 
 
-		#print('indide loss y_hat\n', y_hat)
-		#print(' inside loss y\n', y)
-		
+		#print('indide loss y_hat\n', y_hat.values[:10][:10])
+		#print(' inside loss y\n', y.values[:10][:10])
 		acc = accuracy(y.values, y_hat.values)
 		y_y_hat = list(zip(y.values,y_hat.values))
 		# print('zip(y,y_hat\n', y_y_hat[:10])
