@@ -6,7 +6,7 @@ factorial = lambda N: product(list(range(1,N+1))) if N>=1 else 1
 
 # taylor series of exponential 
 TERMS = 5
-LR = 0.0000001
+LR = 0.00000001
 
 
 def exp(x):
