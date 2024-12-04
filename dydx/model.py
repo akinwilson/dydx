@@ -1,10 +1,10 @@
 # modelling 
-import pickle
-from .layers import Linear, Loss, Layer
-from .linear_algebra import Array
-from pathlib import Path 
-import random
-from .dydx import Scalar
+# import pickle
+from .layers import Linear, Loss
+# from .linear_algebra import Array
+# from pathlib import Path 
+# import random
+# from .dydx import Scalar
 from .dataset import Dataset, DataLoader
 
 # from collections import Counter 
@@ -85,7 +85,7 @@ from .dataset import Dataset, DataLoader
 # 			y.append(_y)
 # 		yield Array(values=x),Array(values=y)
 
-class Model(Layer):
+class Model:
 	
 	def __init__(self, layers):
 		self.ln = layers.keys()
@@ -93,11 +93,11 @@ class Model(Layer):
 		for key in layers:
 			setattr(self, key, layers[key])
 	
-	def parameters(self):
-		params = []
-		for n in self.ln:
-			params += getattr(self,n).parameters()
-		return params 
+	# def parameters(self):
+	# 	params = []
+	# 	for n in self.ln:
+	# 		params += getattr(self,n).parameters()
+	# 	return params 
 
 
 	def __call__(self,x ):
@@ -109,34 +109,44 @@ class Model(Layer):
 		
 	def zero_grad(self):
 		for n in self.ln:
-			getattr(self, n)._zero_grad()
+			l = getattr(self, n).zero_grad()
+			setattr(self, n, l)
+		return self 
+
+	def step(self):
+		for n in self.ln:
+			l = getattr(self, n).step()
+			setattr(self, n, l)
+		return self
+
 		
 
 
-l1 = Linear( random=True, dims=(8, 64))
-l2 = Linear( random=True,dims=(64, 64))
-l3 = Linear( random=True,dims=(64, 16))
-l4 = Linear( activation=False, random=True, dims=(16,1)
-)
+if __name__ == "__main__":
+	l1 = Linear( random=True, dims=(8, 64))
+	l2 = Linear( random=True,dims=(64, 64))
+	l3 = Linear( random=True,dims=(64, 16))
+	l4 = Linear( activation=False, random=True, dims=(16,1)
+	)
 
-names = ["l1","l2","l3","l4"]
-layers =[l1,l2,l3,l4]
-ls = dict(zip(names,layers))
+	names = ["l1","l2","l3","l4"]
+	layers =[l1,l2,l3,l4]
+	ls = dict(zip(names,layers))
 
-model = Model(ls) 
-loss = Loss()
-EPOCHS= 100
+	model = Model(ls) 
+	loss = Loss()
+	EPOCHS= 100
 
-ds = Dataset()
-splits = ['train','val','test']
-print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
-dst = ds.train
-dsv = ds.val
-dss = ds.test
-# iterators 
-dltrain  = DataLoader(dst,16)()
-dlval = DataLoader(dsv,16)()
-dltest = DataLoader(dss,16)()
+	ds = Dataset()
+	splits = ['train','val','test']
+	print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
+	dst = ds.train
+	dsv = ds.val
+	dss = ds.test
+	# iterators 
+	dltrain  = DataLoader(dst,16)()
+	dlval = DataLoader(dsv,16)()
+	dltest = DataLoader(dss,16)()
 
 # for epoch in range(EPOCHS):
 # 	print("Training".center(70,"#"))
