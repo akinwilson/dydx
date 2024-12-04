@@ -33,7 +33,7 @@ class Array:
             
             def _rand_values(dims):
             	p = reduce(lambda x,y: x*y,dims)
-            	v = [ randint(0,10) for _ in range(p)]
+                v = [ randint(0,10) for _ in range(p)]
             	
             	def reshape(v, dims):
             		if len(dims) == 1:
@@ -58,6 +58,8 @@ class Array:
             dims = extract_dims(values, dims)
             self.dims =dims
             self.values = values
+ 
+ 
  
 
     def extract_dims(self, v, dims=[]):
@@ -157,7 +159,7 @@ class Array:
                        
     def __pow__(self,exponent):
          if not self._square():
-            raise valueError(f'Cannot exponentiate non-square matrix')
+            raise ValueError(f'Cannot exponentiate non-square matrix')
          if type(exponent) != type(int):
              NotImplementedError(f'Need to implement non-integer exponentiation')
          # dealing with integers first
@@ -216,7 +218,19 @@ class Array:
             
            
            
-      
+    # def __iter__(self):
+    #     self.ij = (0,0)
+    #     return self
+
+    # def __next__(self): 
+    #     if self.ij[0] > self.dims[0] or self.ij[1] > self.dims[1]:
+    #         raise StopIteration
+    #     else:
+    #         v = self.values[self.ij[0]][self.ij[1]]
+    #         self.ij[0] += 1 
+            
+            
+              
           
     def T(self):
         result = []
