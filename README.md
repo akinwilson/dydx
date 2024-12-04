@@ -10,3 +10,8 @@ A great resource is [Numerical Optimization](https://www.amazon.co.uk/Numerical-
 ## Hardware optimisatrion 
 To further improve upon this library utilisation of a GPU's computational parallelism properties. With the spirit of doing everyone form *scratch*, I have looked at [python cuda](https://github.com/NVIDIA/cuda-python) which is what libraries such as [numba](https://numba.pydata.org/) use under the hood. 
 
+
+## Running tests
+```
+python -m pytest
+```
