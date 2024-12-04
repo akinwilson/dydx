@@ -89,6 +89,7 @@ class Model:
 	
 	def __init__(self, layers):
 		self.ln = layers.keys()
+		self.parameters = []
 		
 		for key in layers:
 			setattr(self, key, layers[key])
@@ -106,12 +107,19 @@ class Model:
 		for n in self.ln:
 			x= getattr(self,n)(x)
 		return x
+	
+	def parameters(self):
+		for n in self.ln:
+			x = getattr(self,n)(x)
+			self.parameters += [v for row in x.values for v in row ]
+
+
 		
 	def zero_grad(self):
 		for n in self.ln:
 			l = getattr(self, n).zero_grad()
 			setattr(self, n, l)
-		return self 
+		return self
 
 	def step(self):
 		for n in self.ln:
