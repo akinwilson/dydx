@@ -5,14 +5,21 @@ product = lambda lst: reduce(lambda x,y: x*y, lst )
 factorial = lambda N: product(list(range(1,N+1))) if N>=1 else 1
 
 # taylor series of exponential 
-TERMS = 8
+TERMS = 5
+LR = 0.0000001
+
+
 def exp(x):
 	res= []
 	#stability = 0.01
 	#x = x.values[0][0]
 	#print('exp(x)\n',x)
 	for i in range(0,TERMS):
-		res.append( (1/factorial(i) ) * ((x)**i))
+		try:
+			res.append( (1/factorial(i) ) * ((x)**i))
+		except OverflowError:
+			print(f" value causing overflow: {x}")
+
 	return sum(res)
 
 def sigmoid(x):
@@ -21,19 +28,17 @@ def sigmoid(x):
 
 class Scalar:
 	
-	def __init__(self,value,op='',children=() ):
+	def __init__(self,value,children=() ):
 		self.data = value
 		self.grad = 0
 		self._backward = lambda : None
 		self._previous = set(children)
-		self_op = op
 		
  
 
 	def __add__(self, other):
 		other = other  if  isinstance(other, Scalar) else self.__class__(other)
 		kwargs = {'value':self.data+other.data,
-		                 'op':'+',
 		                 'children':(self,other)} 
 		result = self.__class__(**kwargs)
 		
@@ -51,7 +56,6 @@ class Scalar:
 			raise ValueError(f'Only supporting exponentiation with types int and float. received {type(other)}')
 			
 		kwargs = {'value':self.data**other,
-		                 'op':f'**{other}',
 		                 'children':(self,)} 
 		result = self.__class__(**kwargs)
 		
@@ -68,7 +72,6 @@ class Scalar:
 	def __mul__(self,other):
 		other = other  if  isinstance(other, Scalar) else self.__class__(other)
 		kwargs = {'value':self.data*other.data,
-		                 'op':'*',
 		                 'children':(self,other)} 
 		result = self.__class__(**kwargs)
 		
@@ -105,7 +108,6 @@ class Scalar:
 	
 	def relu(self):
 		kwargs = {'value':0 if self.data < 0 else self.data,
-		                 'op':'reLU',
 		                 'children':(self,)} 
 		result = self.__class__(**kwargs)
 		
@@ -117,7 +119,7 @@ class Scalar:
 
 	
 	def sigmoid(self):
-		kwargs =  {'value':sigmoid(self.data) , 'op':'sigmoid' , 'children': (self,) }
+		kwargs =  {'value':sigmoid(self.data) ,'children': (self,) }
 		
 		result = self.__class__(**kwargs)
 		
@@ -157,15 +159,10 @@ class Scalar:
 	def _zero_grad(self):
 		self.grad = 0
 		return self
-
-TERMS = 10 
-def ln(x):
-	a = 21
-	res= []
-#	print('ln(x)\n',x)
-	for i in range(1,TERMS,1):
-		res.append( (1/i ) * ((x- 1)/x)**i)
-	return sum(res)
+	
+	def _step(self):
+		self.data = self.data -LR * self.grad
+		return self 
 
 		
 if __name__ == '__main__':
