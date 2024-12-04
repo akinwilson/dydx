@@ -30,18 +30,18 @@ def flatten(v):
         else:
             yield i
 
-class Layer:
+# class Layer:
 	
-    def _zero_grad(self):
-        for p in self.parameters():
-            p.grad = 0
+#     def _zero_grad(self):
+#         for p in self.parameters():
+#             p.grad = 0
 
-    def parameters(self):
-        return []
+#     def parameters(self):
+#         return []
 
 
 
-class Embedding(Array,Layer):
+class Embedding(Array):
 	def __init__(self, activation=True, random=False, dims=(32768,32), values=None):
 		
 
@@ -75,8 +75,8 @@ class Embedding(Array,Layer):
 		return out
 		
 #####
-	def parameters(self):
-		return [p for row in self.values for p in row] 
+	# def parameters(self):
+	# 	return [p for row in self.values for p in row] 
 #		return self.values		
 ######
 	
@@ -89,12 +89,14 @@ class Embedding(Array,Layer):
 	 
 	def __call__(self, x):
 		return self.forward(x)
+	
 
 
 
 
 
-class Linear(Array,Layer):
+
+class Linear(Array):
 	def __init__(self, activation=True, random=False, dims=None, values=None):
 		
 
@@ -132,8 +134,8 @@ class Linear(Array,Layer):
 		return out
 		
 #####
-	def parameters(self):
-		return [p for row in self.values for p in row] 
+	# def parameters(self):
+	# 	return [p for row in self.values for p in row] 
 #		return self.values		
 ######
 	
@@ -143,14 +145,23 @@ class Linear(Array,Layer):
 		self.values =  [ [Scalar(random.uniform(-x,x)) for _ in range(self.dims[1] )] for _ in range(self.dims[0] +1)]
 		self.dims = self.extract_dims(self.values, [])
 
-	def apply(self, item, fun):
-		if isinstance(item, list):
-			return [self.apply(x, fun) for x in item]
-		else:
-		    return fun(item) 	
+	# def apply(self, item, fun):
+	# 	if isinstance(item, list):
+	# 		return [self.apply(x, fun) for x in item]
+	# 	else:
+	# 	    return fun(item) 	
 	 
 	def __call__(self, x):
 		return self.forward(x)
+	
+	def step(self):
+		self.values = [[x._step() for x in row] for row in self.values]
+		return self 
+
+
+	def zero_grad(self):
+		self.values = [[x._zero_grad() for x in row] for row in self.values]
+		return self 
 
 
 def accuracy(y,y_hat):
@@ -162,6 +173,9 @@ def accuracy(y,y_hat):
 	
 #	print("accuracy: y ", y)
 	return (1/len(matches))*sum(matches)
+
+
+
 
 class Loss:
 	def __init__(self, name='binary_cross_entropy'):
