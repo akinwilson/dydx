@@ -7,6 +7,10 @@ import random, sys
 # gather seed information 
 seed = random.randint(1, sys.maxsize)
 rdm = random.seed(seed)
+
+# seed =  5519695473683192700 # 2061982751930337971
+# rdm = random.seed(seed)
+
 print(f"dataset seed: {seed}")
 
 
@@ -20,7 +24,9 @@ p = Path(__file__).parent / 'data'
 fp = p / file
 
 
-xcols =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']
+
+xcols =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration','Gender','Net Sales','Product Name']
+xcols_types = ['ordinal', 'categorical','binary','ordinal', 'categorical','binary', 'ordinal','cateogrical', 'ordinal', 'categorical']
 ycols=  ['Claim']
 
 class Dataset:
@@ -37,7 +43,8 @@ class Dataset:
 			self.y_names = y_names
 			self.to_balance = balance
 			self.shuffle = shuffle
-			self.testing = testing 
+			self.testing = testing
+			self.seed = seed 
 
 			def load(filepath):
 				with open( filepath, 'rb') as fh:
@@ -91,8 +98,11 @@ class Dataset:
 			for i in range(len(self.data[0][0])):
 				# collect ith predictor
 				m= [p[i] for p in [x for (x,_) in self.data]]
-				if min(m) == 0 : # asumming standardisation min max scaling
+				if min(m) == 0 and xcols_types[i] == 'ordinal': # asumming standardisation min max scaling
 					dt.append((min(m),max(m)))
+
+				elif min(m) == 0 and (xcols_types[i] == 'categorical' or 'binary'):
+					dt.append(('cateogrical'))
 				else: # assuming normalsation 
 					mu = (1/len(m)) * sum(m)
 					var = (1/(len(m)-1) ) * sum( [(mu - x)**2 for x in m])
@@ -103,9 +113,25 @@ class Dataset:
 			def standardise(x, min, max):
 				return (x-min)/(max-min)
 
-			self.data = [  ([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in self.data ]
-			# only use 160 examples for testing the pipeline
-			self.data = self.data[:160] if self.testing else self.data 		
+			data = []
+			for (xx,y) in self.data:
+				row = []
+				for (idx,x) in enumerate(xx):
+
+					if len(dt[idx]) == 2:
+						if dt[idx][0]== 0:
+							row.append( Scalar(standardise(x, *dt[idx])))
+						else:
+							row.append(Scalar(normalise(x, *dt[idx])))
+					else:
+						row.append(Scalar(x))
+				data.append((row, Scalar(float(y[0])) ))
+					# data.append(([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0]))))
+    
+			# self.data = [  ([ Scalar(x) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in self.data ]
+			self.data = data 
+   			# only use 160 examples for testing the pipeline
+			self.data = self.data[:512] if self.testing else self.data 		
 
 		
 class DataLoader:
