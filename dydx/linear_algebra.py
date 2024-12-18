@@ -32,16 +32,17 @@ class Array:
             self.dims = dims
             
             def _rand_values(dims):
-            	p = reduce(lambda x,y: x*y,dims)
+                p = reduce(lambda x,y: x*y,dims)
                 v = [ randint(0,10) for _ in range(p)]
-            	
-            	def reshape(v, dims):
-            		if len(dims) == 1:
-            			return v
-            		n = reduce(lambda x,y: x*y, dims[1:])
-            		return [reshape(v[i*n:(i+1)*n], dims[1:]) for i in range(len(v)//n)]
-            		
-            	return reshape(v,dims)
+                
+                def reshape(v, dims):
+                    if len(dims) == 1:
+                        return v
+                    n = reduce(lambda x,y: x*y, dims[1:])
+                    return [reshape(v[i*n:(i+1)*n], dims[1:]) for i in range(len(v)//n)]
+                
+                return reshape(v,dims)
+            
             self.values = _rand_values(dims)
             
             
@@ -77,7 +78,41 @@ class Array:
             s += x.__repr__() + ',\n'
         s = '['+ s.rstrip(',\n') + ']'
         return s
-   
+
+
+    def __getitem__(self, indices):
+        # (1,3) 1st row, 3rd column
+        # (:,4) every row, 4th column
+        
+        try:
+            slice_loc = [isinstance(x,slice) for x in indices].index(True)
+        except ValueError:
+            slice_loc = None
+        sliced = any([isinstance(x,slice) for x in indices])    
+        all_sliced = all([isinstance(x,slice) for x in indices])
+        all_indices = all([isinstance(x,int) for x in indices])
+        if all_sliced: # [:,:]
+            return self.__class__(values=self.values)
+        
+        if len(indices) != len(self.dims): # e.g. (1,2,3) and (2,3)
+            raise ValueError(f'Number of indices, {len(indices)} does not match number of dimensions, {len(self.dims)}, got {indices} and {self.dims} respectively.')
+        
+        for (idx,i) in enumerate(indices): # e.g. (4,5) and (1,2)
+            if i not in list(range(self.dims[idx])) and not sliced:
+                raise ValueError(f'Indices {indices} are not within range of dimensions, {self.dims}.')
+        
+        if slice_loc == 0:            
+            return self.__class__( values= [self.T().values[indices[1]]] ).T() 
+        
+        if slice_loc == 1:
+            return self.__class__( values= [self.values[indices[0]]] )
+        if all_indices:
+            return self.__class__(values= [[self.values[indices[0]][indices[1]]]])
+    
+            
+
+        
+        
         
     def __matmul__(self,other):
 #        if type(self) != type(other):
