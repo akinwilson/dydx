@@ -2,6 +2,8 @@ from random import randint
 from typing import Tuple, List
 from math import isclose
 from functools import reduce
+from .dydx import Scalar
+
 # matrix
 #  [ [1,1] ] -> dims (1,2)
 # [ [1], [1] ]  -> dims (2,1)
@@ -17,9 +19,9 @@ from functools import reduce
 
 class Array:
     
-    def __init__(self, values : List[List]=None, random : bool =False, dims : Tuple[int,int]=None):
+    def __init__(self, values : List[List]=None, random : bool =False, dims : Tuple[int,int]=None, optimisable=False):
         
-        
+        self.optimisable = optimisable
         if values is not None and random:
             raise ValueError(f'array {values} provided but randomised array set to {random}')
             
@@ -33,7 +35,7 @@ class Array:
             
             def _rand_values(dims):
                 p = reduce(lambda x,y: x*y,dims)
-                v = [ randint(0,10) for _ in range(p)]
+                v = [ randint(0,10) for _ in range(p)] if not optimisable else [ Scalar(randint(-1,1)) for _ in range(p)] 
                 
                 def reshape(v, dims):
                     if len(dims) == 1:
@@ -71,7 +73,8 @@ class Array:
             except TypeError:
             	pass
             return dims       
-	 
+
+ 
     def __repr__(self):
         s = ''
         for x in self.values:
@@ -80,6 +83,22 @@ class Array:
         return s
 
 
+    def apply(self,func):
+        '''
+        element-wise applying of function 
+        '''
+        
+        for i in range(self.dims[0]):
+            for j in range(self.dims[1]):
+                self[i,j] = func(self[i,j]) 
+        return self 
+
+
+    def __setitem__(self,indices,value):
+        if len(indices) != len(self.dims): # e.g. (1,2,3) and (2,3)
+            raise ValueError(f'Number of indices, {len(indices)} does not match number of dimensions, {len(self.dims)}, got {indices} and {self.dims} respectively.')
+        self.values[indices[0]][indices[1]] = value
+        
     def __getitem__(self, indices):
         # (1,3) 1st row, 3rd column
         # (:,4) every row, 4th column
@@ -107,7 +126,7 @@ class Array:
         if slice_loc == 1:
             return self.__class__( values= [self.values[indices[0]]] )
         if all_indices:
-            return self.__class__(values= [[self.values[indices[0]][indices[1]]]])
+            return self.values[indices[0]][indices[1]]
     
             
 
@@ -291,8 +310,16 @@ class Array:
     
     def diagonal(self):
         # return purely diagonal
-        if not self._square():
-            raise NotImplementedError(f'Diagonalisation of array for non square array not implemented yet') 
+        x = self._zeros()
+        r = min(self.dims)
+        for i in range(r):
+            x.values[i][i] = self[i,i]
+        return x
+            
+        # if not self._square():
+        #     raise NotImplementedError(f'Diagonalisation of array for non square array not implemented yet') 
+
+
 
     def __mul__(self, value):
         m = self.values
