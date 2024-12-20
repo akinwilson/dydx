@@ -8,7 +8,7 @@ import random, sys
 seed = random.randint(1, sys.maxsize)
 rdm = random.seed(seed)
 
-# seed =  5519695473683192700 # 2061982751930337971
+# seed =  3588574048688484214 # 2061982751930337971
 # rdm = random.seed(seed)
 
 print(f"dataset seed: {seed}")
@@ -125,7 +125,7 @@ class Dataset:
 							row.append(Scalar(normalise(x, *dt[idx])))
 					else:
 						row.append(Scalar(x))
-				data.append((row, Scalar(float(y[0])) ))
+				data.append((row, [Scalar(float(y[0]))] ))
 					# data.append(([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0]))))
     
 			# self.data = [  ([ Scalar(x) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in self.data ]
