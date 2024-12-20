@@ -1,4 +1,5 @@
 # dydx
+![Tests](https://github.com/akinwilson/dydx/actions/workflows/tests.yml/badge.svg)
 
 ![alt text](img/autodydx.jpg "Automatic differentiation")
 
@@ -12,7 +13,11 @@ A great resource is the book [Numerical Optimization](https://www.amazon.co.uk/N
 
 ## Installation 
 
+Clone the repository and run: 
 
+```
+pip install -e .
+```
 
 ## Running tests
 ```
