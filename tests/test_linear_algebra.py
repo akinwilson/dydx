@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from linear_algebra import Array 
-import pytest 
+from linear_algebra import Array
+from autodiff import Scalar 
+import pytest
 
 
 def test_random_matrix_instantiation():
@@ -102,13 +103,38 @@ def test_inverse_creation():
            [1,0,0,0]]
     s = Array(values=v, dims=(4,4))
     assert s.inverse() @  s == s.identity()
+
+
     
 def test_slicing_array():
     pass
 
+def test_transpose():
+    pass 
+
 def test_element_extraction():
     pass
  
+
+def test_square_diagonal():
+    pass
+
+def test_rectangular_diagonal():
+    pass
+
+
+def test_e_vecs_and_vals_for_rectangular_matrix():
+    pass
+
+def test_e_vecs_and_vals_for_square_matrix():
+    pass
+
+
+def test_optimisable_array():
+    pass
+
+def test_apply_function():
+    pass
 #   cd code/linear_algebra/tests  && pytest
 
 #print('m1\n',m1)
