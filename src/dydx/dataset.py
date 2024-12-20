@@ -14,7 +14,7 @@ rdm = random.seed(seed)
 print(f"dataset seed: {seed}")
 
 
-from .dydx import Scalar
+from .autodiff import Scalar
 from collections import Counter, OrderedDict
 
 file= 'encoded_records.list'
