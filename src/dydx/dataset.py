@@ -134,7 +134,7 @@ class Dataset:
 			self.data = self.data[:512] if self.testing else self.data 		
 
 		
-class DataLoader:
+class Dataloader:
 	def __init__(self, dataset, batch_size):
 		self.data = dataset
 		self.batch_size = batch_size
@@ -158,9 +158,9 @@ if __name__ == "__main__":
 	dsv = ds.val
 	dss = ds.test
 	# iterators 
-	dltrain  = DataLoader(dst,16)
-	dlval = DataLoader(dsv,16)
-	dltest = DataLoader(dss,16)
+	dltrain  = Dataloader(dst,16)
+	dlval = Dataloader(dsv,16)
+	dltest = Dataloader(dss,16)
 
 
 
