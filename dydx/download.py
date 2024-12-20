@@ -1,9 +1,7 @@
 
 URL = "https://raw.githubusercontent.com/Athpr123/Binary-Classification-Using-Machine-learning/refs/heads/master/dataset.csv"
-import csv
 import requests
 import re 
-from pprint import pprint
 import pickle
 from pathlib import Path 
 
@@ -46,6 +44,9 @@ encodings = {
 'Product Name': product_name_enc
 }
 
+encodings_dims = {k:len(v) for (k,v) in encodings.items()}
+# print('Encoding dimensions:', encodings_dims)
+
 
 encs = {'ID' : lambda x : int(x), 
 'Age': lambda x: float(x),
@@ -76,11 +77,12 @@ for (i,r) in enumerate(records):
 	
 # [ {k:encs[k](v) for (k,v) in r.items()} for r in records[:10]]
 
-print(f'No records before encoding: {len(records)}')
-print(f'No records after encoding: {len(records_encd)}')
-pprint(records_encd[:2])
+# print(f'No records before encoding: {len(records)}')
+# print(f'No records after encoding: {len(records_encd)}')
+# pprint(records_encd[:2])
 
-files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd}
+
+files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd, 'encoding_dims.dict': encodings_dims}
 
 p = Path(__file__).parent / 'data'
 p.mkdir(parents=True, exist_ok=True)
