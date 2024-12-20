@@ -103,7 +103,12 @@ def test_inverse_creation():
     s = Array(values=v, dims=(4,4))
     assert s.inverse() @  s == s.identity()
     
-    
+def test_slicing_array():
+    pass
+
+def test_element_extraction():
+    pass
+ 
 #   cd code/linear_algebra/tests  && pytest
 
 #print('m1\n',m1)
