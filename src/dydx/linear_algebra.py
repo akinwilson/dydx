@@ -2,7 +2,7 @@ from random import randint
 from typing import Tuple, List
 from math import isclose
 from functools import reduce
-from .dydx import Scalar
+from .autodiff import Scalar
 
 # matrix
 #  [ [1,1] ] -> dims (1,2)
