@@ -1,4 +1,5 @@
 Pipfile
+src/dydx/__pycache__/*
 src/dydx/data/*
 experiments/
 *Pipfile.lock
