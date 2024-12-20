@@ -1,8 +1,6 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from linear_algebra import Array
-from autodiff import Scalar 
+
+from dydx.linear_algebra import Array
+from dydx.autodiff import Scalar 
 import pytest
 
 
