@@ -19,7 +19,7 @@ from .autodiff import Scalar
 
 class Array:
     
-    def __init__(self, values : List[List]=None, random : bool =False, dims : Tuple[int,int]=None, optimisable=False):
+    def __init__(self, values : List[List]=None, random : bool =False, dims=None, optimisable=False):
         
         self.optimisable = optimisable
         if values is not None and random:
@@ -31,7 +31,7 @@ class Array:
                 raise ValueError('Require dimensions of random array to be instantiated')
             if any( x < 1 for x in dims ):
                 raise ValueError(f'Require dimensions of array to be positive, got {dims}')
-            self.dims = dims
+            self.dims = list(dims)
             
             def _rand_values(dims):
                 p = reduce(lambda x,y: x*y,dims)
@@ -51,13 +51,13 @@ class Array:
         if values is not None:
             dims = []
             def extract_dims(v, dims):
-            	try:
-            		for d in v[:1]:
-            			dims.append(len(v))
-            			dims= extract_dims(d,dims)
-            	except TypeError:
-            		pass
-            	return dims
+                try:
+                    for d in v[:1]:
+                        dims.append(len(v))
+                        dims= extract_dims(d,dims)
+                except TypeError:
+                    pass
+                return dims
             dims = extract_dims(values, dims)
             self.dims =dims
             self.values = values
@@ -67,11 +67,11 @@ class Array:
 
     def extract_dims(self, v, dims=[]):
             try:
-            	for d in v[:1]:
-            		dims.append(len(v))
-            		dims=self.extract_dims(d,dims)
+                for d in v[:1]:
+                    dims.append(len(v))
+                    dims=self.extract_dims(d,dims)
             except TypeError:
-            	pass
+                pass
             return dims       
 
  
@@ -155,8 +155,12 @@ class Array:
                 TypeError(f'Cannot compare different types. Got {type(self)} and {type(other)}')
         if self.dims != other.dims:
             return False
-        ijs = [ (i,j) for i in range(self.dims[0]) for j in range(self.dims[1])]
-        return all([ isclose(self.values[i][j], other.values[i][j], abs_tol=1e-6) for (i,j) in ijs ])
+        # ijs = [ (i,j) for i in range(self.dims[0]) for j in range(self.dims[1])]
+        res = []
+        for i in range(self.dims[0]):
+            for j in range(self.dims[1]):
+                res.append(isclose(self.values[i][j], other.values[i][j], abs_tol=1e-6))
+        return all(res)
         
         
     def __ne__(self, other): 
@@ -491,12 +495,12 @@ class Array:
                     
         R = self.__class__(values = R)
         eigenvalues = [R.values[i][i] for i in range(ncols)]
-        print('R', R)
-        print('Q', Q)
-        print('self', self)
-        print('Q@R',Q@R )
+        # print('R', R)
+        # print('Q', Q)
+        # print('self', self)
+        # print('Q@R',Q@R )
         # failing at the moment but not top sure why
-        assert self == Q@R , 'reconstruction of matrix using Q, an orthonormal matrix, and R, an upper triangular matrix, has failed'
+        assert self == Q@R , f'reconstruction of matrix using Q, an orthonormal matrix, and R, an upper triangular matrix, has failed. \n{self} != \n{Q}\n@\n{R},\nQR=\n{Q@R}'
         # Q is an orthonormal basis 
         # R is an upper triangular matrix
         #print('R\n', R)
@@ -543,50 +547,50 @@ class Array:
                 
                 
 if __name__ == '__main__':
-	
-	m1 = Array(random=True, dims=(4,2))
-	m2 = Array(random=True, dims=(2,3))
-	s = Array(values=[[3,0,0],[0,5,0],[0,0,5]], dims=(4,4))
-	I= Array(values=[[1,0,0],[0,1,0],[0,0,1]], random=False)
-	print('m1\n',m1)
-	print('m1.T\n', m1.T())
-	print('m2\n',m2)
-	print( m1 == m1)
-	print(m1 != m1)
-	print( 'm1 @ m2\n', m1 @ m2)
-	print( 'm1 @ m2 @ I \n', m1 @ m2 @ I)
-	x = 3- 2j
-	print(m1._square())
-	print(m1._zeros(), m1.dims)
-	print('s\n', s)
-	print('s._minor(0,0)\n', s._minor(0,0))
-	print('s._minor(0,2)\n', s._minor(0,2))
-	print('s._minor(1,2)\n', s._minor(1,2))
-	print('s.determinant()\n', s.determinant())
-	print(s.inverse() @ s)
-	m3 = Array(random=True, dims=(5,5))
-	m3m3inv = m3.inverse() @ m3
-	print('m3.inverse() @ m3\n' , m3m3inv)
-	print(m3m3inv == m3.identity() )
-	m4 = Array(random=True, dims=(3,3)).identity()
-	print(f'3 * {m4}=\n', 3 * m4)
-	m5 = Array(random=True, dims=(3,3))
-	print(f'm5**2 {m5**2}')
-	assert m5**3 == m5 @ m5 @ m5
-	assert m5**-1 == m5.inverse()
-	assert m5**(-3) == m5**-1 @ m5**-1 @ m5**-1
-	print('vector wise normalisation')
-	print(f'm5 {m5}')
-	m5norm = m5.normalise(dim=0,norm=0)
-	print(f'm5.normalise()) {m5norm}')
-	print(f'm5norm @ m5norm.T()) {m5norm @ m5norm.T()}')
-	m6 = Array(values= [[12,-51,4],[6,167,-68],[-4,24,-41]])
-	print('m6\n', m6)
-	print('Eigen values')
-	# print(m6.eigenvalues())
-	#print('eigen vectors')
-	#print(m6.eigenvectors())
-	#print('stacking')
+    
+    m1 = Array(random=True, dims=(4,2))
+    m2 = Array(random=True, dims=(2,3))
+    s = Array(values=[[3,0,0],[0,5,0],[0,0,5]], dims=(4,4))
+    I= Array(values=[[1,0,0],[0,1,0],[0,0,1]], random=False)
+    print('m1\n',m1)
+    print('m1.T\n', m1.T())
+    print('m2\n',m2)
+    print( m1 == m1)
+    print(m1 != m1)
+    print( 'm1 @ m2\n', m1 @ m2)
+    print( 'm1 @ m2 @ I \n', m1 @ m2 @ I)
+    x = 3- 2j
+    print(m1._square())
+    print(m1._zeros(), m1.dims)
+    print('s\n', s)
+    print('s._minor(0,0)\n', s._minor(0,0))
+    print('s._minor(0,2)\n', s._minor(0,2))
+    print('s._minor(1,2)\n', s._minor(1,2))
+    print('s.determinant()\n', s.determinant())
+    print(s.inverse() @ s)
+    m3 = Array(random=True, dims=(5,5))
+    m3m3inv = m3.inverse() @ m3
+    print('m3.inverse() @ m3\n' , m3m3inv)
+    print(m3m3inv == m3.identity() )
+    m4 = Array(random=True, dims=(3,3)).identity()
+    print(f'3 * {m4}=\n', 3 * m4)
+    m5 = Array(random=True, dims=(3,3))
+    print(f'm5**2 {m5**2}')
+    assert m5**3 == m5 @ m5 @ m5
+    assert m5**-1 == m5.inverse()
+    assert m5**(-3) == m5**-1 @ m5**-1 @ m5**-1
+    print('vector wise normalisation')
+    print(f'm5 {m5}')
+    m5norm = m5.normalise(dim=0,norm=0)
+    print(f'm5.normalise()) {m5norm}')
+    print(f'm5norm @ m5norm.T()) {m5norm @ m5norm.T()}')
+    m6 = Array(values= [[12,-51,4],[6,167,-68],[-4,24,-41]])
+    print('m6\n', m6)
+    print('Eigen values')
+    # print(m6.eigenvalues())
+    #print('eigen vectors')
+    #print(m6.eigenvectors())
+    #print('stacking')
 #print(m6.stack(m6, dim=00))
 # print(m5.normalise().T() @ m5.normalise())
 
