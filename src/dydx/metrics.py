@@ -1,4 +1,4 @@
-from .dydx import Scalar 
+from .autodiff import Scalar 
 from typing import List
 
 # # taylor series number of terms param for natural logaritm 

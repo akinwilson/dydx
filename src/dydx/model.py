@@ -1,6 +1,6 @@
 from .layers import Linear, Layer
 from .metrics import Loss
-from .dataset import Dataset, DataLoader
+from .dataset import Dataset
 
 
 class Model(Layer):
