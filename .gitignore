@@ -4,3 +4,5 @@ src/dydx/data/*
 experiments/
 *Pipfile.lock
 __pycache__/
+*.egg-info/
+.coverage
