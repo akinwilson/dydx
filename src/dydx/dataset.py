@@ -1,21 +1,27 @@
 import pickle
-
 from .linear_algebra import Array
 from pathlib import Path 
 import random, sys
+from .autodiff import Scalar
+from collections import Counter
+import logging 
+
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s"')
+logger = logging.getLogger(__name__)
+
 
 # gather seed information 
-seed = random.randint(1, sys.maxsize)
-rdm = random.seed(seed)
+# seed = random.randint(1, sys.maxsize)
+# rdm = random.seed(seed)
 
 # seed =  3588574048688484214 # 2061982751930337971
 # rdm = random.seed(seed)
 
-print(f"dataset seed: {seed}")
+# print(f"dataset seed: {seed}")
 
 
-from .autodiff import Scalar
-from collections import Counter, OrderedDict
+
 
 file= 'encoded_records.list'
 
@@ -31,7 +37,7 @@ ycols=  ['Claim']
 
 class Dataset:
 	
-		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True):
+		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True, seed=random.randint(1, sys.maxsize), logging=True):
 			'''
 			asuming data is loaded as a list of records; 
 			[ {'uuid': 1, 'col1':data1,'col2':data2, ... ,'coln':datan},
@@ -44,7 +50,13 @@ class Dataset:
 			self.to_balance = balance
 			self.shuffle = shuffle
 			self.testing = testing
-			self.seed = seed 
+			self.logging = logging
+			self.seed = seed
+			self.random = random
+			self.random.seed(seed)
+			if logging:
+				logger.info(f'Dataset seed: {seed}')
+
 
 			def load(filepath):
 				with open( filepath, 'rb') as fh:
@@ -56,8 +68,9 @@ class Dataset:
 			if self.to_balance:
 				self.balance()
 			else:
-				if self.shuffle: 
-					random.shuffle(self.data)
+				if self.shuffle:
+					# randomness of dataset
+					self.random.shuffle(self.data)
 			
 
 			self.scale()
@@ -84,8 +97,9 @@ class Dataset:
 			pos =  [  (x, y)  for (x,y) in self.data if y[0] ==1.0 ][:max_vals_ys[0][1]]
 			neg =  [  (x, y) for (x,y) in self.data if y[0] ==0.0  ][:max_vals_ys[0][1]]
 
-			self.data =  pos + neg 
-			random.shuffle(self.data)
+			self.data =  pos + neg
+   			# randomness of dataset 
+			self.random.shuffle(self.data)
 			
 		def __getitem__(self,idx, split=['train','val','test'][1]):
 			return getattr(self,split)[idx]
@@ -94,7 +108,7 @@ class Dataset:
 			return len(getattr(self,split))
 		
 		def scale(self):
-			dt = [] # data tranformation 
+			dt = [] # data tranformation params
 			for i in range(len(self.data[0][0])):
 				# collect ith predictor
 				m= [p[i] for p in [x for (x,_) in self.data]]
@@ -148,80 +162,3 @@ class Dataloader:
 				y.append(_y)
 			yield Array(values=x),Array(values=y)
 
-
-
-if __name__ == "__main__":	
-	ds = Dataset()
-	splits = ['train','val','test']
-	print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
-	dst = ds.train
-	dsv = ds.val
-	dss = ds.test
-	# iterators 
-	dltrain  = Dataloader(dst,16)
-	dlval = Dataloader(dsv,16)
-	dltest = Dataloader(dss,16)
-
-
-
-	for (idx,xy) in enumerate(dltrain()):
-		x,y = xy
-		print(f'{idx}')
-# ID,Age,Agency,Agency Type,Commision (in value),Destination,Distribution Channel,Duration,Gender,Net Sales,Product Name,Claim
-
-# x =['Age','Agency','Agency Type','Commision (in value)','Destination','Distribution Channel','Duration,Gender','Net Sales','Product Name']
-# y=  ['Claim']
-# xvals = lambda r: [v for (k,v) in r.items() if k in x]
-# yvals = lambda r: [v for (k,v) in r.items() if k in y]
-# data = [  (xvals(r), yvals(r)) for r in data ]
-
-
-# dist = Counter((y[0] for (_,y) in data))
-
-# dist = sorted(dist.items(), key=lambda kv: kv[1])
-# max_vals_ys = dist[:1]
-
-# pos =  [  (x, y)  for (x,y) in data if y[0] ==1.0 ][:max_vals_ys[0][1]]
-# neg =  [  (x, y) for (x,y) in data if y[0] ==0.0  ][:max_vals_ys[0][1]]
-
-
-# data = pos + neg 
-# random.shuffle(data)
-# #print(len(data))
-# # data transformatiom 
-# minmax= []
-# dt = []
-# for i in range(len(data[0][0])):
-# 	m= [p[i] for p in [x for (x,_) in data]]
-# 	if min(m) == 0 :
-# 		dt.append((min(m),max(m)))
-# 	else:
-# 		mu = (1/len(m)) * sum(m)
-# 		var = (1/(len(m)-1) ) * sum( [(mu - x)**2 for x in m])
-# 		dt.append((mu, var**(1/2)))
-		
-# def normalise(x, mu, std):
-# 	return (x-mu)/std
-# def standardise(x, min, max):
-# 	return (x-min)/(max-min)
-
-# data =[  ([ Scalar(standardise(x, *m)) if m[0]== 0 else Scalar(normalise(x, *m)) for (x,m) in zip(xx,dt)], Scalar(float(y[0])))  for (xx,y)  in data ][:160]
-
-
-# # train, val, test split 
-# train = data[:int(len(data)*0.70)]
-# val = data[int(len(data)*0.70): int(len(data)*0.90)]
-# test =data[int(len(data)*0.90):]
-# print(len(train))
-# #print(len(val))
-# #print(len(test))
-# #print(test)
-
-# def batch(data, n=16):
-#     l = len(data)
-#     for ndx in range(0, l, n):
-#         x,y = [],[]
-#         for (_x,_y) in data[ndx:min(ndx + n, l)]:
-#         	x.append(_x)
-#         	y.append(_y)
-#         yield Array(values=x),Array(values=y)
