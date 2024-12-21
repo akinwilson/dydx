@@ -26,7 +26,7 @@ class Model(Layer):
 		return params 
 
 
-	def seed(self):
+	def seeds(self):
 		sds = [getattr(self, n).seed for n in self.ln]
 		return sds
 

@@ -7,7 +7,7 @@ from collections import Counter
 import logging 
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s"')
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -37,13 +37,16 @@ ycols=  ['Claim']
 
 class Dataset:
 	
-		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True, seed=random.randint(1, sys.maxsize), logging=True):
+		def __init__(self, filepath=fp, x_names=xcols,y_names=ycols,balance=True,shuffle=True, testing=True, seed=None, logging=True):
 			'''
 			asuming data is loaded as a list of records; 
 			[ {'uuid': 1, 'col1':data1,'col2':data2, ... ,'coln':datan},
 			  {'uuid': 2, 'col1':data1,'col2':data2, ... ,'coln':datan},
 			   .... ]
 			'''
+			if seed is None: 
+				seed = random.randint(1, sys.maxsize)
+    
 			self.filepath= filepath 
 			self.x_names = x_names
 			self.y_names = y_names
@@ -53,6 +56,7 @@ class Dataset:
 			self.logging = logging
 			self.seed = seed
 			self.random = random
+				
 			self.random.seed(seed)
 			if logging:
 				logger.info(f'Dataset seed: {seed}')

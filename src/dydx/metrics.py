@@ -1,6 +1,6 @@
 from .autodiff import Scalar 
 from typing import List
-
+from .utils import flatten, clip 
 # # taylor series number of terms param for natural logaritm 
 TERMS = 10
 # numerical stability param for log of values close to 0
@@ -15,14 +15,6 @@ def ln(x):
         res.append( (1/i ) * ((x- 1)/x)**i)
     return sum(res)
             
-    
-def flatten(v):
-    for i in v:
-        if isinstance(i, (list,tuple)):
-            for j in flatten(i):
-                yield j
-        else:
-            yield i
 
 
 
@@ -37,16 +29,6 @@ def accuracy(y,y_hat, threshold=C):
     return (1/len(matches))*sum(matches)
 
 
-
-def clip(x, min=EPS,max=1-EPS):
-    if x.data < min:
-        x.data = min
-        return x
-    elif x.data > max:
-        x.data = max        
-        return x
-    else:
-        return x
 
 
 
