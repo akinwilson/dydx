@@ -5,7 +5,7 @@
 
 -   [x] Factor XOR-gate modelling into its own example
 -   [x] Implemement dataset set and layer seed initialisation via passing seeds into layer classes and dataset object
--   [] implement the grad method and zero_grad method at the array level to be able to perform SVD
+-   [o] implement the grad method and zero_grad method at the array level to be able to perform SVD
 -   [] complete svd once the prior tax is compeleted 
 -   [] write tests for Scalar object 
 -   [] convert private to public repository
