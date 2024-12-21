@@ -1,12 +1,18 @@
 # dydx
 ![Tests](https://github.com/akinwilson/dydx/actions/workflows/tests.yml/badge.svg)
 
+# Todo 21 Dec 2024
+
+-   [ ] Task 1
+-   [x] Completed Task
+
+
+
 ![alt text](img/autodydx.jpg "Automatic differentiation")
 ## Overview
 dydx is a library implementing [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation); the gradient-based optimisation technqiue and [linear algebra](https://en.wikipedia.org/wiki/Linear_algebra) routines from scratch. I.e. using **only** python's built-in libraries and avoiding others such as [numpy](https://numpy.org/), [pytorch](https://pytorch.org/), [tensorflow](https://www.tensorflow.org/), [scipy](https://scipy.org/), [pandas](https://pandas.pydata.org/) etc.
 
 To demonstrate purposes, it is applied to various problems in [numerical linear algebra](https://en.wikipedia.org/wiki/Numerical_linear_algebra) and [machine learning](https://en.wikipedia.org/wiki/Machine_learning), especially [deep learning](https://en.wikipedia.org/wiki/Deep_learning). The library is applied to three problems in particular in the `examples/` folder; [singular value decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) of a random non-square matrix, modelling the [non-linearities](https://en.wikipedia.org/wiki/Linear_separability) of the [XOR gate](https://en.wikipedia.org/wiki/XOR_gate) function and finally, an industry [supervised](https://en.wikipedia.org/wiki/Supervised_learning) dataset of insurance claims. 
-
 
 ## Installation
 
@@ -15,16 +21,23 @@ Create a vritual environment, clone the repository and install the package via r
 ```bash
 pip install -e .
 ```
-you can also install the package **without** cloning this repository via running:
+from within the root of the cloned repository. You can also install the package **without** cloning this repository via running:
 ```bash
 pip install git+https://github.com/akinwilson/dydx
 ```
 
 ## Usage
-```python
-from dydx.linear_algebra import import Array 
-```
+Check out the `examples/` folder to see how the library is used. You can from the root of this repository run the examples via:
 
+```bash
+python examples/xor_gate.py --epochs 250_000_000 --learning-rate 0.0000001
+```
+```bash
+python examples/singular_value_decomposition.py --steps 1000 --step-size 0.0000001
+```
+```bash
+python examples/insurance_claims.py --epochs 250_000_000 --learning-rate 0.0000001
+```
 
 ## Running tests
 
