@@ -3,9 +3,9 @@
 
 # Todo 21 Dec 2024
 
--   [x] Factor XOR-gate modelling into its own example
--   [x] Implemement dataset set and layer seed initialisation via passing seeds into layer classes and dataset object
--   [o] implement the grad method and zero_grad method at the array level to be able to perform SVD
+- [x] Factor XOR-gate modelling into its own example
+- [x] Implemement dataset set and layer seed initialisation via passing seeds into layer classes and dataset object
+-   [] implement the grad method and zero_grad method at the array level to be able to perform SVD
 -   [] complete svd once the prior tax is compeleted 
 -   [] write tests for Scalar object 
 -   [] convert private to public repository
@@ -34,8 +34,14 @@ pip install git+https://github.com/akinwilson/dydx
 Check out the `examples/` folder to see how the library is used. You can from the root of this repository run the examples via:
 
 ```bash
-python examples/xor_gate.py --epochs 250_000_000 --learning-rate 0.0000001
+python examples/xor_gate.py
 ```
+Note that you may alter fitting parameters from the command line: 
+
+```bash 
+python examples/xor_gate.py --epochs 250 --learning-rate 0.01 --layer-seeds 636915800,29155285,01355285
+```
+
 ```bash
 python examples/singular_value_decomposition.py --steps 1000 --step-size 0.0000001
 ```
