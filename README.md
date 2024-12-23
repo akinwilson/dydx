@@ -40,10 +40,11 @@ python examples/xor_gate.py
 ```bash 
 python examples/xor_gate.py --epochs 250 --learning-rate 0.01 --layer-seeds 636915800,29155285,01355285
 ```
-
+The rest of the examples can be run via:
 ```bash
 python examples/singular_value_decomposition.py
 ```
+and 
 ```bash
 python examples/insurance_claims.py
 ```
