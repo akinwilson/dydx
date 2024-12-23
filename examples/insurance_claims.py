@@ -3,6 +3,7 @@ from dydx.layers import Linear, Embedding
 from dydx.model import Model
 from dydx.download import encodings_dims, encodings_dims
 from dydx.metrics import Loss
+from dydx.download import download
 from dydx.dataset import Dataloader, Dataset
 from pathlib import Path
 from functools import reduce
@@ -52,10 +53,10 @@ def main(args):
     embedders =[ (f'e{idx}',Embedding(dims=(in_size, args.embedding_dim),seed=s)) for (idx,(in_size,s)) in  enumerate(zip(cat_data_size.values(), ls_embedders) )]
 
 
-    l1 = Linear(dims=(4*args.embedding_dim + 6, args.scaler*64),seed=ls_linear[0] )
-    l2 = Linear(dims=(args.scaler*64, args.scaler*64),seed=ls_linear[1])
-    l3 = Linear(dims=(args.scaler*64, args.scaler*32),seed=ls_linear[2])
-    l4 = Linear(dims=(args.scaler*32, 16), seed=ls_linear[3])
+    l1 = Linear(dims=(4*args.embedding_dim + 6, args.layer_scale*64),seed=ls_linear[0] )
+    l2 = Linear(dims=(args.layer_scale*64, args.layer_scale*64),seed=ls_linear[1])
+    l3 = Linear(dims=(args.layer_scale*64, args.layer_scale*32),seed=ls_linear[2])
+    l4 = Linear(dims=(args.layer_scale*32, 16), seed=ls_linear[3])
     l5 = Linear(activation=False, dims=(16,1), seed=ls_linear[4])
     # when activation is set to false we use sigmoid function to normalised output 
 
@@ -76,7 +77,7 @@ def main(args):
     fp_params = exp_root / pname
 
     loss = Loss()
-    ds = Dataset(testing=False, logging=True) # takes 4048 examples to overfit model too for testing purposes
+    ds = Dataset(testing=False, logging=False) # takes 4048 examples to overfit model too for testing purposes
     
     splits = ['train','val','test']
     print(f"dataset sizes for {', '.join(splits)} are {[ds.__len__(split) for split in splits]} respectively.")
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     
     parser.add_argument('-s', '--layer-scale', help='parameter controls the size of the hidden layers', default=4)
     parser.add_argument('-ds', '--dataset-seed', help='seed value for initialisation of dataset', default=4051899315611228202)
-    parser.add_argument('-ls' '--layer-seeds', help='seed values for initialisation of layers', default='2657719702506702394, 3451391271922671329, 4049295135587188773, 8630703877296012607, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942')
+    parser.add_argument('-ls', '--layer-seeds', help='seed values for initialisation of layers', default='2657719702506702394, 3451391271922671329, 4049295135587188773, 8630703877296012607, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942')
     parser.add_argument('-ed', '--embedding-dim', help='dimension of embeddings for categorical data', default=32)
     parser.add_argument('-lr', '--learning-rate', help='step size during optimisation step', default=0.0000001)
     parser.add_argument('-e', '--epochs', help='number of epochs to run algorithm for', default=1000)
@@ -149,7 +150,10 @@ if __name__ == "__main__":
     parser.add_argument('-bs', '--batch-size', help="batch size during fitting", default=32)
     
     args = parser.parse_args()
+    # print(args.__dict__)
     args.layer_seeds = [int(x) for x in args.layer_seeds.split(',')]
-    
+    # creates a directory at the location of the pip package and downloads training data to it. 
+    download()
+    # run fitting routine
     main(args)
     
