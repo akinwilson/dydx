@@ -11,15 +11,6 @@ import math
 import yaml
 
 
-SCALER = 4
-EMBEDDING_DIM = 32
-LR = 0.0000001
-BETA = 0.9
-EPOCHS= 1000
-OPTMISATION = ['sgd', 'sgd+m'][1]
-
-
-
 def propagate(x,model):    
     a_in = x[:,1]
     x0 = model.e0(a_in)
@@ -109,7 +100,7 @@ def main(args):
             
     delta_t_minus1 = [0] *  len(model.parameters())
     step = 0 
-    for epoch in range(EPOCHS):
+    for epoch in range(args.epochs):
         # print("Training".center(70,"#"))
         for (idx,xy) in enumerate( dltrain()):
             x,y = xy
@@ -128,12 +119,12 @@ def main(args):
     
             print(info)
             # optimizer step
-            if OPTMISATION == 'sgd+m':
+            if args.optimisation == 'sgd+m':
                 # SGD with momentum
                 for idx, p in enumerate(model.parameters()):
                     p.data = p.data -  args.learning_rate *( args.beta *p.grad + (1-args.beta)*delta_t_minus1[idx])
                     delta_t_minus1[idx] =  p.grad + (1-args.beta)*delta_t_minus1[idx]
-            if OPTMISATION == 'sgd':
+            if args.optimisation == 'sgd':
                 # SGD 
                 for idx, p in enumerate(model.parameters()):
                     p.data = p.data -   args.learning_rate *p.grad
@@ -145,20 +136,11 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # print("hello")
     parser = ArgumentParser()
-    SCALER = 4
-    EMBEDDING_DIM = 32
-    LR = 0.0000001
-    BETA = 0.9
-    EPOCHS= 1000
-    OPTMISATION = ['sgd', 'sgd+m'][1]
     
     parser.add_argument('-s', '--layer-scale', help='parameter controls the size of the hidden layers', default=4)
-    
-    parser.add_argument('-ds', '--dataset-seed', help='seed value for initialisation of dataset', default=5605892109805102950)
-    parser.add_argument('-ls' '--layer-seeds', help='seed values for initialisation of layers', default=)
-    
+    parser.add_argument('-ds', '--dataset-seed', help='seed value for initialisation of dataset', default=4051899315611228202)
+    parser.add_argument('-ls' '--layer-seeds', help='seed values for initialisation of layers', default='2657719702506702394, 3451391271922671329, 4049295135587188773, 8630703877296012607, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942, 5626589656863341942')
     parser.add_argument('-ed', '--embedding-dim', help='dimension of embeddings for categorical data', default=32)
     parser.add_argument('-lr', '--learning-rate', help='step size during optimisation step', default=0.0000001)
     parser.add_argument('-e', '--epochs', help='number of epochs to run algorithm for', default=1000)
