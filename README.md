@@ -35,7 +35,7 @@ Check out the `examples/` folder to see how the library is used. You can from th
 ```bash
 python examples/xor_gate.py
 ```
-Note that you may alter fitting parameters from the command line: 
+**Note**: you may alter fitting parameters from the command line like: 
 
 ```bash 
 python examples/xor_gate.py --epochs 250 --learning-rate 0.01 --layer-seeds 636915800,29155285,01355285
