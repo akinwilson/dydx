@@ -140,6 +140,9 @@ def test_e_vecs_and_vals_for_square_matrix():
 
 
 def test_optimisable_array():
+    x  = Array(random=True, dims=(3,3), optimisable=True)
+    assert isinstance(x[1,1], Scalar), f"Optimisable array supposed to return {type(Scalar)}, but return {type(x[1.1])} instead."
+    
     pass
 
 def test_apply_function():
