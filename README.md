@@ -1,14 +1,13 @@
 # dydx
 ![Tests](https://github.com/akinwilson/dydx/actions/workflows/tests.yml/badge.svg)
 
-# Todo 21 Dec 2024
+# Todo 23 Dec 2024
 
 - [x] Factor XOR-gate modelling into its own example
 - [x] Implemement dataset set and layer seed initialisation via passing seeds into layer classes and dataset object
--   [] implement the grad method and zero_grad method at the array level to be able to perform SVD
--   [] complete svd once the prior tax is compeleted 
--   [] write tests for Scalar object 
--   [] convert private to public repository
+- [x] implement the grad method and zero_grad method at the array level to be able to perform SVD
+- [] write tests for Scalar object 
+- [] convert private to public repository
 
 
 
@@ -23,7 +22,7 @@ To demonstrate purposes, it is applied to various problems in [numerical linear 
 Create a vritual environment, clone the repository and install the package via running: 
 
 ```bash
-pip install -e .
+pip install .
 ```
 from within the root of the cloned repository. You can also install the package **without** cloning this repository via running:
 ```bash
@@ -43,11 +42,13 @@ python examples/xor_gate.py --epochs 250 --learning-rate 0.01 --layer-seeds 6369
 ```
 
 ```bash
-python examples/singular_value_decomposition.py --steps 1000 --step-size 0.0000001
+python examples/singular_value_decomposition.py
 ```
 ```bash
-python examples/insurance_claims.py --epochs 250_000_000 --learning-rate 0.0000001
+python examples/insurance_claims.py
 ```
+
+The preset values for the arguments of each optimisation problem shown in the examples should yield desirable results. 
 
 ## Running tests
 
