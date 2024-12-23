@@ -4,20 +4,17 @@ from pathlib import Path
 import random, sys
 from .autodiff import Scalar
 from collections import Counter
-import logging 
+# import logging 
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger(__name__)
-
+# logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
+# logger = logging.getLogger(__name__)
 
 # gather seed information 
 # seed = random.randint(1, sys.maxsize)
 # rdm = random.seed(seed)
-
 # seed =  3588574048688484214 # 2061982751930337971
 # rdm = random.seed(seed)
-
 # print(f"dataset seed: {seed}")
 
 
@@ -59,7 +56,7 @@ class Dataset:
 				
 			self.random.seed(seed)
 			if logging:
-				logger.info(f'Dataset seed: {seed}')
+				print(f'Dataset seed: {seed}')
 
 
 			def load(filepath):

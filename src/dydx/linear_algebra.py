@@ -1,5 +1,5 @@
-from random import randint
-from typing import Tuple, List
+import random as r 
+from typing import List
 from math import isclose
 from functools import reduce
 from .autodiff import Scalar
@@ -27,6 +27,7 @@ class Array:
             
             
         if random:
+            self.random = r
             if dims is None:
                 raise ValueError('Require dimensions of random array to be instantiated')
             if any( x < 1 for x in dims ):
@@ -35,7 +36,7 @@ class Array:
             
             def _rand_values(dims):
                 p = reduce(lambda x,y: x*y,dims)
-                v = [ randint(0,10) for _ in range(p)] if not optimisable else [ Scalar(randint(-1,1)) for _ in range(p)] 
+                v = [ self.random.randint(0,10) for _ in range(p)] if not optimisable else [ Scalar(self.random.uniform(-3,3)) for _ in range(p)] 
                 
                 def reshape(v, dims):
                     if len(dims) == 1:
@@ -82,6 +83,22 @@ class Array:
         s = '['+ s.rstrip(',\n') + ']'
         return s
 
+
+
+    def grad(self):
+        def _grad(x):
+            x.data = x.grad 
+            return x 
+        return self.apply(_grad)
+    
+    
+    def zero_grad(self):    
+        def _zero_grad(x):
+            x.grad = 0
+            return x 
+        return self.apply(_zero_grad)
+        
+            
 
     def apply(self,func):
         '''
@@ -275,19 +292,7 @@ class Array:
             
             
            
-           
-    # def __iter__(self):
-    #     self.ij = (0,0)
-    #     return self
 
-    # def __next__(self): 
-    #     if self.ij[0] > self.dims[0] or self.ij[1] > self.dims[1]:
-    #         raise StopIteration
-    #     else:
-    #         v = self.values[self.ij[0]][self.ij[1]]
-    #         self.ij[0] += 1 
-            
-            
               
           
     def T(self):
@@ -317,7 +322,7 @@ class Array:
         x = self._zeros()
         r = min(self.dims)
         for i in range(r):
-            x.values[i][i] = self[i,i]
+            x[i,i] = self[i,i]
         return x
             
         # if not self._square():
@@ -336,12 +341,8 @@ class Array:
         return self.__class__(values=m) 
             
     def _zeros(self):
-        idxs =  [ (x,y) for x in range(self.dims[0]) for y in range(self.dims[1])] 
-
-                
-        for (xi,yi) in idxs:
-            self.values[xi][yi] = 0
-        return self.__class__(values=self.values)
+        v = [ [ 0 if not self.optimisable else Scalar(0) for _ in range(self.dims[1])] for _ in range(self.dims[0])]
+        return self.__class__(values=v)
 
 
     def determinant(self):
@@ -552,22 +553,22 @@ if __name__ == '__main__':
     m2 = Array(random=True, dims=(2,3))
     s = Array(values=[[3,0,0],[0,5,0],[0,0,5]], dims=(4,4))
     I= Array(values=[[1,0,0],[0,1,0],[0,0,1]], random=False)
-    print('m1\n',m1)
-    print('m1.T\n', m1.T())
-    print('m2\n',m2)
-    print( m1 == m1)
-    print(m1 != m1)
-    print( 'm1 @ m2\n', m1 @ m2)
-    print( 'm1 @ m2 @ I \n', m1 @ m2 @ I)
+    # print('m1\n',m1)
+    # print('m1.T\n', m1.T())
+    # print('m2\n',m2)
+    # print( m1 == m1)
+    # print(m1 != m1)
+    # print( 'm1 @ m2\n', m1 @ m2)
+    # print( 'm1 @ m2 @ I \n', m1 @ m2 @ I)
     x = 3- 2j
-    print(m1._square())
-    print(m1._zeros(), m1.dims)
-    print('s\n', s)
-    print('s._minor(0,0)\n', s._minor(0,0))
-    print('s._minor(0,2)\n', s._minor(0,2))
-    print('s._minor(1,2)\n', s._minor(1,2))
-    print('s.determinant()\n', s.determinant())
-    print(s.inverse() @ s)
+    # print(m1._square())
+    # print(m1._zeros(), m1.dims)
+    # print('s\n', s)
+    # print('s._minor(0,0)\n', s._minor(0,0))
+    # print('s._minor(0,2)\n', s._minor(0,2))
+    # print('s._minor(1,2)\n', s._minor(1,2))
+    # print('s.determinant()\n', s.determinant())
+    # print(s.inverse() @ s)
     m3 = Array(random=True, dims=(5,5))
     m3m3inv = m3.inverse() @ m3
     print('m3.inverse() @ m3\n' , m3m3inv)

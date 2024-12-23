@@ -3,7 +3,7 @@ from .autodiff import Scalar
 import random 
 from functools import reduce
 import sys
-import logging 
+# import logging 
 
 # gather seed information 
 # seed = random.randint(1, sys.maxsize)
@@ -13,8 +13,8 @@ import logging
 # rdm = random.seed(seed)
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger(__name__)
+# logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
+# logger = logging.getLogger(__name__)
 
 class Layer:
     def zero_grad(self):
@@ -26,7 +26,7 @@ class Layer:
     
 
 class Embedding(Layer):
-    def __init__(self, activation=True, dims=None, values=None, seed=None, logging=True):
+    def __init__(self, activation=True, dims=None, values=None, seed=None, logging=False):
         super().__init__()
         if seed is None:
             seed = random.randint(1, sys.maxsize)
@@ -37,7 +37,7 @@ class Embedding(Layer):
         self.random = random
         # self.random.seed(seed)
         if logging:
-            logger.info(f'Layer seed: {seed}')
+            print(f'Layer seed: {seed}')
         
         if values is None:
             self._init_weights()
@@ -77,7 +77,7 @@ class Embedding(Layer):
 
 
 class Linear(Layer):
-    def __init__(self, activation=True, dims=None, values=None, logging=True, seed=random.randint(1, sys.maxsize)):
+    def __init__(self, activation=True, dims=None, values=None, logging=False, seed=random.randint(1, sys.maxsize)):
 
         super().__init__()
         self.dims = dims
@@ -85,7 +85,7 @@ class Linear(Layer):
         random.seed(seed) 
         self.random = random
         if logging:
-            logger.info(f"Layer seed: {seed}")
+            print(f"Layer seed: {seed}")
   
         if values is None:
             self._init_weights()

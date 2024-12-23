@@ -5,8 +5,8 @@ import re
 import pickle
 from pathlib import Path 
 
-res = requests.get(URL, allow_redirects=True)
 
+res = requests.get(URL, allow_redirects=True)
 data= res.content.decode().split('\r\n')
 
 # split on commas except from inside double quotes
@@ -47,50 +47,52 @@ encodings = {
 encodings_dims = {k:len(v) for (k,v) in encodings.items()}
 # print('Encoding dimensions:', encodings_dims)
 
-
-encs = {'ID' : lambda x : int(x), 
-'Age': lambda x: float(x),
-'Agency': lambda x:agency_enc[x] ,
-'Agency Type' : lambda x: agency_type_enc[x],
-'Commision (in value)': lambda x: float(x),
-'Destination' : lambda x: destination_enc[x],
-'Distribution Channel': lambda x:distribution_channel_enc[x],
-'Gender': lambda x : gender_enc[x],
-'Net Sales': lambda x: float(x),
-'Duration': lambda x: float(x),
-'Product Name': lambda x : product_name_enc[x],
-'Claim': lambda x: float(x),
-}
-assert len(cols) == len(encs), f'cols dont match encodings, {len(cols)} and {len(encs)} respectively '
+def download():
 
 
-records_encd = []
-pairs = []
-for (i,r) in enumerate(records):
-	try:
-		rec = {k:encs[k](v) for (k,v) in r.items()}
-		records_encd.append(rec)
-		pairs.append((records[i],rec))
-	except ValueError:
-		print(data[i])
-		pass
-	
+	encs = {'ID' : lambda x : int(x), 
+	'Age': lambda x: float(x),
+	'Agency': lambda x:agency_enc[x] ,
+	'Agency Type' : lambda x: agency_type_enc[x],
+	'Commision (in value)': lambda x: float(x),
+	'Destination' : lambda x: destination_enc[x],
+	'Distribution Channel': lambda x:distribution_channel_enc[x],
+	'Gender': lambda x : gender_enc[x],
+	'Net Sales': lambda x: float(x),
+	'Duration': lambda x: float(x),
+	'Product Name': lambda x : product_name_enc[x],
+	'Claim': lambda x: float(x),
+	}
+	assert len(cols) == len(encs), f'cols dont match encodings, {len(cols)} and {len(encs)} respectively '
 
-files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd, 'encoding_dims.dict': encodings_dims}
-p = Path(__file__).parent / 'data'
-p.mkdir(parents=True, exist_ok=True)
-for (f,obj) in files.items():
-	with open( p / f, 'wb') as fh:
-		pickle.dump(obj, fh)
+
+	records_encd = []
+	pairs = []
+	for (i,r) in enumerate(records):
+		try:
+			rec = {k:encs[k](v) for (k,v) in r.items()}
+			records_encd.append(rec)
+			pairs.append((records[i],rec))
+		except ValueError:
+			print(data[i])
+			pass
 		
-# testing saved data 
 
-for f in files.keys():
-	with open( p / f, 'rb') as fh:
-		assert files[f] ==  pickle.load(fh), 'pickled file did not return same object' 
+	files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd, 'encoding_dims.dict': encodings_dims}
+	p = Path(__file__).parent / 'data'
+	p.mkdir(parents=True, exist_ok=True)
+	for (f,obj) in files.items():
+		with open( p / f, 'wb') as fh:
+			pickle.dump(obj, fh)
+			
+	# testing saved data 
+
+	for f in files.keys():
+		with open( p / f, 'rb') as fh:
+			assert files[f] ==  pickle.load(fh), 'pickled file did not return same object' 
 
 
-		
+			
 
 
 
