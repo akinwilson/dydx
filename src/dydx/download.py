@@ -75,19 +75,10 @@ for (i,r) in enumerate(records):
 		print(data[i])
 		pass
 	
-# [ {k:encs[k](v) for (k,v) in r.items()} for r in records[:10]]
-
-# print(f'No records before encoding: {len(records)}')
-# print(f'No records after encoding: {len(records_encd)}')
-# pprint(records_encd[:2])
-
 
 files= {'records.list':records, 'encoder.dict':encodings, 'encoded_records.list': records_encd, 'encoding_dims.dict': encodings_dims}
-
 p = Path(__file__).parent / 'data'
 p.mkdir(parents=True, exist_ok=True)
-print(p)
-
 for (f,obj) in files.items():
 	with open( p / f, 'wb') as fh:
 		pickle.dump(obj, fh)
