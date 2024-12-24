@@ -1,21 +1,12 @@
 # dydx
 ![Tests](https://github.com/akinwilson/dydx/actions/workflows/tests.yml/badge.svg)
 
-# Todo 23 Dec 2024
-
-- [x] Factor XOR-gate modelling into its own example
-- [x] Implemement dataset set and layer seed initialisation via passing seeds into layer classes and dataset object
-- [x] implement the grad method and zero_grad method at the array level to be able to perform SVD
-- [] write tests for Scalar object 
-- [] convert private to public repository
-
-
 
 ![alt text](img/autodydx.jpg "Automatic differentiation")
 ## Overview
 dydx is a library implementing [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation); the gradient-based optimisation technqiue and [linear algebra](https://en.wikipedia.org/wiki/Linear_algebra) routines from scratch. I.e. using **only** python's built-in libraries and avoiding others such as [numpy](https://numpy.org/), [pytorch](https://pytorch.org/), [tensorflow](https://www.tensorflow.org/), [scipy](https://scipy.org/), [pandas](https://pandas.pydata.org/) etc.
 
-To demonstrate purposes, it is applied to various problems in [numerical linear algebra](https://en.wikipedia.org/wiki/Numerical_linear_algebra) and [machine learning](https://en.wikipedia.org/wiki/Machine_learning), especially [deep learning](https://en.wikipedia.org/wiki/Deep_learning). The library is applied to three problems in particular in the `examples/` folder; [singular value decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) of a random non-square matrix, modelling the [non-linearities](https://en.wikipedia.org/wiki/Linear_separability) of the [XOR gate](https://en.wikipedia.org/wiki/XOR_gate) function and finally, an industry [supervised](https://en.wikipedia.org/wiki/Supervised_learning) dataset of insurance claims. 
+To demonstrate purposes, it is applied to various problems in [numerical linear algebra](https://en.wikipedia.org/wiki/Numerical_linear_algebra) and [machine learning](https://en.wikipedia.org/wiki/Machine_learning), especially [deep learning](https://en.wikipedia.org/wiki/Deep_learning). The library is applied to three problems in the `examples/` folder; [singular value decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) of a random non-square matrix, modelling the [non-linearities](https://en.wikipedia.org/wiki/Linear_separability) of the [XOR gate](https://en.wikipedia.org/wiki/XOR_gate) function and finally, an industry [supervised](https://en.wikipedia.org/wiki/Supervised_learning) dataset of insurance claims. 
 
 ## Installation
 
@@ -24,7 +15,8 @@ Create a vritual environment, clone the repository and install the package via r
 ```bash
 pip install .
 ```
-from within the root of the cloned repository. You can also install the package **without** cloning this repository via running:
+
+You can also install the package **without** cloning this repository via running:
 ```bash
 pip install git+https://github.com/akinwilson/dydx
 ```
@@ -40,11 +32,13 @@ python examples/xor_gate.py
 ```bash 
 python examples/xor_gate.py --epochs 250 --learning-rate 0.01 --layer-seeds 636915800,29155285,01355285
 ```
+
 The rest of the examples can be run via:
 ```bash
 python examples/singular_value_decomposition.py
 ```
-and 
+
+And 
 ```bash
 python examples/insurance_claims.py
 ```
