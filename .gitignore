@@ -7,3 +7,4 @@ experiments/
 __pycache__/
 *.egg-info/
 .coverage
+fit.ipynb
